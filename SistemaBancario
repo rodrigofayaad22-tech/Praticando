@@ -1,0 +1,287 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Cliente {
+    private String nome;
+    private String cpf;
+
+    public Cliente(String nome, String cpf) {
+        this.nome = nome;
+        this.cpf = cpf;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+}
+
+class Conta {
+    private int numero;
+    private Cliente cliente;
+    private double saldo;
+
+    public Conta(int numero, Cliente cliente) {
+        this.numero = numero;
+        this.cliente = cliente;
+        this.saldo = 0.0;
+    }
+
+    public int getNumero() {
+        return numero;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public void depositar(double valor) {
+        if (valor <= 0) {
+            System.out.println("Erro: o valor do depósito deve ser maior que zero.");
+            return;
+        }
+
+        saldo += valor;
+        System.out.println("Depósito realizado com sucesso!");
+    }
+
+    public boolean sacar(double valor) {
+        if (valor <= 0) {
+            System.out.println("Erro: o valor do saque deve ser maior que zero.");
+            return false;
+        }
+
+        if (valor > saldo) {
+            System.out.println("Erro: saldo insuficiente.");
+            return false;
+        }
+
+        saldo -= valor;
+        System.out.println("Saque realizado com sucesso!");
+        return true;
+    }
+
+    public boolean transferir(Conta contaDestino, double valor) {
+        if (contaDestino == null) {
+            System.out.println("Erro: conta de destino não encontrada.");
+            return false;
+        }
+
+        if (this.sacar(valor)) {
+            contaDestino.depositar(valor);
+            System.out.println("Transferência realizada com sucesso!");
+            return true;
+        }
+
+        return false;
+    }
+
+    public void exibirInformacoes() {
+        System.out.println("----------------------------");
+        System.out.println("Número da conta: " + numero);
+        System.out.println("Cliente: " + cliente.getNome());
+        System.out.println("CPF: " + cliente.getCpf());
+        System.out.println("Saldo: R$ " + saldo);
+    }
+}
+
+class Banco {
+    private ArrayList<Conta> contas;
+
+    public Banco() {
+        this.contas = new ArrayList<>();
+    }
+
+    public void criarConta(int numero, Cliente cliente) {
+        if (buscarContaPorNumero(numero) != null) {
+            System.out.println("Erro: já existe uma conta com esse número.");
+            return;
+        }
+
+        Conta conta = new Conta(numero, cliente);
+        contas.add(conta);
+
+        System.out.println("Conta criada com sucesso!");
+    }
+
+    public Conta buscarContaPorNumero(int numero) {
+        for (Conta conta : contas) {
+            if (conta.getNumero() == numero) {
+                return conta;
+            }
+        }
+
+        return null;
+    }
+
+    public void listarContas() {
+        if (contas.isEmpty()) {
+            System.out.println("Nenhuma conta cadastrada.");
+            return;
+        }
+
+        System.out.println("\n=== CONTAS CADASTRADAS ===");
+
+        for (Conta conta : contas) {
+            conta.exibirInformacoes();
+        }
+    }
+}
+
+public class sistemabancario {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Banco banco = new Banco();
+
+        int opcao;
+
+        do {
+            System.out.println("\n=== SISTEMA BANCÁRIO ===");
+            System.out.println("1 - Criar conta");
+            System.out.println("2 - Depositar");
+            System.out.println("3 - Sacar");
+            System.out.println("4 - Transferir");
+            System.out.println("5 - Consultar saldo");
+            System.out.println("6 - Listar contas");
+            System.out.println("7 - Sair");
+            System.out.print("Escolha uma opção: ");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    criarConta(scanner, banco);
+                    break;
+
+                case 2:
+                    realizarDeposito(scanner, banco);
+                    break;
+
+                case 3:
+                    realizarSaque(scanner, banco);
+                    break;
+
+                case 4:
+                    realizarTransferencia(scanner, banco);
+                    break;
+
+                case 5:
+                    consultarSaldo(scanner, banco);
+                    break;
+
+                case 6:
+                    banco.listarContas();
+                    break;
+
+                case 7:
+                    System.out.println("Encerrando o sistema bancário...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida!");
+            }
+
+        } while (opcao != 7);
+
+        scanner.close();
+    }
+
+    public static void criarConta(Scanner scanner, Banco banco) {
+        System.out.print("Digite o número da conta: ");
+        int numero = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Digite o nome do cliente: ");
+        String nome = scanner.nextLine();
+
+        System.out.print("Digite o CPF do cliente: ");
+        String cpf = scanner.nextLine();
+
+        Cliente cliente = new Cliente(nome, cpf);
+        banco.criarConta(numero, cliente);
+    }
+
+    public static void realizarDeposito(Scanner scanner, Banco banco) {
+        System.out.print("Digite o número da conta: ");
+        int numero = scanner.nextInt();
+
+        Conta conta = banco.buscarContaPorNumero(numero);
+
+        if (conta == null) {
+            System.out.println("Conta não encontrada.");
+            return;
+        }
+
+        System.out.print("Digite o valor do depósito: ");
+        double valor = scanner.nextDouble();
+
+        conta.depositar(valor);
+    }
+
+    public static void realizarSaque(Scanner scanner, Banco banco) {
+        System.out.print("Digite o número da conta: ");
+        int numero = scanner.nextInt();
+
+        Conta conta = banco.buscarContaPorNumero(numero);
+
+        if (conta == null) {
+            System.out.println("Conta não encontrada.");
+            return;
+        }
+
+        System.out.print("Digite o valor do saque: ");
+        double valor = scanner.nextDouble();
+
+        conta.sacar(valor);
+    }
+
+    public static void realizarTransferencia(Scanner scanner, Banco banco) {
+        System.out.print("Digite o número da conta de origem: ");
+        int numeroOrigem = scanner.nextInt();
+
+        Conta contaOrigem = banco.buscarContaPorNumero(numeroOrigem);
+
+        if (contaOrigem == null) {
+            System.out.println("Conta de origem não encontrada.");
+            return;
+        }
+
+        System.out.print("Digite o número da conta de destino: ");
+        int numeroDestino = scanner.nextInt();
+
+        Conta contaDestino = banco.buscarContaPorNumero(numeroDestino);
+
+        if (contaDestino == null) {
+            System.out.println("Conta de destino não encontrada.");
+            return;
+        }
+
+        System.out.print("Digite o valor da transferência: ");
+        double valor = scanner.nextDouble();
+
+        contaOrigem.transferir(contaDestino, valor);
+    }
+
+    public static void consultarSaldo(Scanner scanner, Banco banco) {
+        System.out.print("Digite o número da conta: ");
+        int numero = scanner.nextInt();
+
+        Conta conta = banco.buscarContaPorNumero(numero);
+
+        if (conta == null) {
+            System.out.println("Conta não encontrada.");
+            return;
+        }
+
+        System.out.println("Saldo atual: R$ " + conta.getSaldo());
+    }
+}
