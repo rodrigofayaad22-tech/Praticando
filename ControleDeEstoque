@@ -1,0 +1,237 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Produto {
+    private int codigo;
+    private String nome;
+    private int quantidade;
+    private double preco;
+
+    public Produto(int codigo, String nome, int quantidade, double preco) {
+        this.codigo = codigo;
+        this.nome = nome;
+        this.quantidade = quantidade;
+        this.preco = preco;
+    }
+
+    public int getCodigo() {
+        return codigo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
+    }
+
+    public void exibirInformacoes() {
+        System.out.println("-------------------------");
+        System.out.println("Código: " + codigo);
+        System.out.println("Nome: " + nome);
+        System.out.println("Quantidade: " + quantidade);
+        System.out.println("Preço: R$ " + preco);
+        System.out.println("Valor total em estoque: R$ " + calcularValorTotal());
+    }
+
+    public double calcularValorTotal() {
+        return quantidade * preco;
+    }
+}
+
+public class controledeestoque {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Produto> produtos = new ArrayList<>();
+
+        int opcao;
+
+        do {
+            System.out.println("\n=== CONTROLE DE ESTOQUE ===");
+            System.out.println("1 - Cadastrar produto");
+            System.out.println("2 - Listar produtos");
+            System.out.println("3 - Buscar produto por código");
+            System.out.println("4 - Atualizar estoque");
+            System.out.println("5 - Remover produto");
+            System.out.println("6 - Sair");
+            System.out.print("Escolha uma opção: ");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    cadastrarProduto(scanner, produtos);
+                    break;
+
+                case 2:
+                    listarProdutos(produtos);
+                    break;
+
+                case 3:
+                    buscarProduto(scanner, produtos);
+                    break;
+
+                case 4:
+                    atualizarEstoque(scanner, produtos);
+                    break;
+
+                case 5:
+                    removerProduto(scanner, produtos);
+                    break;
+
+                case 6:
+                    System.out.println("Encerrando o sistema...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida!");
+            }
+
+        } while (opcao != 6);
+
+        scanner.close();
+    }
+
+    public static void cadastrarProduto(Scanner scanner, ArrayList<Produto> produtos) {
+        System.out.print("Digite o código do produto: ");
+        int codigo = scanner.nextInt();
+        scanner.nextLine();
+
+        if (buscarPorCodigo(produtos, codigo) != null) {
+            System.out.println("Erro: já existe um produto com esse código.");
+            return;
+        }
+
+        System.out.print("Digite o nome do produto: ");
+        String nome = scanner.nextLine();
+
+        System.out.print("Digite a quantidade: ");
+        int quantidade = scanner.nextInt();
+
+        if (quantidade < 0) {
+            System.out.println("Erro: a quantidade não pode ser negativa.");
+            return;
+        }
+
+        System.out.print("Digite o preço: ");
+        double preco = scanner.nextDouble();
+
+        if (preco < 0) {
+            System.out.println("Erro: o preço não pode ser negativo.");
+            return;
+        }
+
+        Produto produto = new Produto(codigo, nome, quantidade, preco);
+        produtos.add(produto);
+
+        System.out.println("Produto cadastrado com sucesso!");
+    }
+
+    public static void listarProdutos(ArrayList<Produto> produtos) {
+        if (produtos.isEmpty()) {
+            System.out.println("Nenhum produto cadastrado.");
+            return;
+        }
+
+        System.out.println("\n=== LISTA DE PRODUTOS ===");
+
+        for (Produto produto : produtos) {
+            produto.exibirInformacoes();
+        }
+    }
+
+    public static void buscarProduto(Scanner scanner, ArrayList<Produto> produtos) {
+        System.out.print("Digite o código do produto: ");
+        int codigo = scanner.nextInt();
+
+        Produto produto = buscarPorCodigo(produtos, codigo);
+
+        if (produto == null) {
+            System.out.println("Produto não encontrado.");
+        } else {
+            produto.exibirInformacoes();
+        }
+    }
+
+    public static void atualizarEstoque(Scanner scanner, ArrayList<Produto> produtos) {
+        System.out.print("Digite o código do produto: ");
+        int codigo = scanner.nextInt();
+
+        Produto produto = buscarPorCodigo(produtos, codigo);
+
+        if (produto == null) {
+            System.out.println("Produto não encontrado.");
+            return;
+        }
+
+        System.out.println("Produto encontrado:");
+        produto.exibirInformacoes();
+
+        System.out.print("Digite a nova quantidade: ");
+        int novaQuantidade = scanner.nextInt();
+
+        if (novaQuantidade < 0) {
+            System.out.println("Erro: a quantidade não pode ser negativa.");
+            return;
+        }
+
+        produto.setQuantidade(novaQuantidade);
+
+        System.out.print("Deseja atualizar o preço também? (1 - Sim / 2 - Não): ");
+        int resposta = scanner.nextInt();
+
+        if (resposta == 1) {
+            System.out.print("Digite o novo preço: ");
+            double novoPreco = scanner.nextDouble();
+
+            if (novoPreco < 0) {
+                System.out.println("Erro: o preço não pode ser negativo.");
+                return;
+            }
+
+            produto.setPreco(novoPreco);
+        }
+
+        System.out.println("Produto atualizado com sucesso!");
+    }
+
+    public static void removerProduto(Scanner scanner, ArrayList<Produto> produtos) {
+        System.out.print("Digite o código do produto: ");
+        int codigo = scanner.nextInt();
+
+        Produto produto = buscarPorCodigo(produtos, codigo);
+
+        if (produto == null) {
+            System.out.println("Produto não encontrado.");
+            return;
+        }
+
+        produtos.remove(produto);
+        System.out.println("Produto removido com sucesso!");
+    }
+
+    public static Produto buscarPorCodigo(ArrayList<Produto> produtos, int codigo) {
+        for (Produto produto : produtos) {
+            if (produto.getCodigo() == codigo) {
+                return produto;
+            }
+        }
+
+        return null;
+    }
+}
